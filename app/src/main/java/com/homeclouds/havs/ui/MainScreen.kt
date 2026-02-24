@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,14 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -89,16 +89,15 @@ fun MainScreen(nav: NavController) {
     var editingTool by remember { mutableStateOf<UiTool?>(null) }
     var deletingTool by remember { mutableStateOf<UiTool?>(null) }
 
-    // Last calculation
+    // Last calculation (what you want on top)
     var lastPoints by remember { mutableStateOf<Double?>(null) }
     var lastMaker by remember { mutableStateOf<String?>(null) }
     var lastModel by remember { mutableStateOf<String?>(null) }
     var lastMinutes by remember { mutableStateOf<Int?>(null) }
     var lastPpm by remember { mutableStateOf<Double?>(null) }
 
-    // Current calculation preview
+    // Calculation preview (for button enable + saving last calculation)
     val vib = selectedTool?.vibrationMs2
-    val ppm = vib?.let { HavsMath.pointsPerMinute(it) }
     val minutes = minutesText.toIntOrNull()?.coerceAtLeast(0) ?: 0
     val pointsThis = if (vib == null) 0.0 else HavsMath.pointsForMinutes(vib, minutes)
 
@@ -142,10 +141,10 @@ fun MainScreen(nav: NavController) {
                     ) { Text("Add tool") }
                 }
 
-                // Last calculation
+                // Last calculation card (ONLY calculation output here)
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = Color.White.copy(alpha = 0.90f)
+                        containerColor = Color.White.copy(alpha = 0.94f)
                     )
                 ) {
                     Column(
@@ -160,10 +159,10 @@ fun MainScreen(nav: NavController) {
                             val pts = lastPoints ?: 0.0
                             val c = pointsBandColor(pts)
 
-                            Text(
+                            /*Text(
                                 "${lastMaker.orEmpty()} • ${lastModel.orEmpty()}",
                                 style = MaterialTheme.typography.titleSmall
-                            )
+                            )*/
                             Text("Minutes: ${lastMinutes ?: 0}")
                             Text("Points: ${"%.1f".format(pts)}", color = c)
                             Text("Points per minute: ${lastPpm?.let { "%.3f".format(it) } ?: "-"}")
@@ -171,14 +170,16 @@ fun MainScreen(nav: NavController) {
                     }
                 }
 
-                // Calculator
+                // Calculator card (NO redundant calculation text; tool info at bottom)
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = Color.White.copy(alpha = 0.90f)
+                        containerColor = Color.White.copy(alpha = 0.94f)
                     )
                 ) {
                     Column(
-                        Modifier.padding(16.dp),
+                        Modifier
+                            .padding(16.dp)
+                            .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Text("Calculator", style = MaterialTheme.typography.titleMedium)
@@ -211,20 +212,33 @@ fun MainScreen(nav: NavController) {
                             modifier = Modifier.fillMaxWidth()
                         )
 
-                        Text("Vibration: ${vib?.let { "%.2f".format(it) } ?: "-"} m/s²")
-                        Text("Points per minute: ${ppm?.let { "%.3f".format(it) } ?: "-"}")
-                        Text(
-                            "Points (this calculation): ${"%.1f".format(pointsThis)}",
-                            color = pointsBandColor(pointsThis)
-                        )
-
-                        val noiseText =
-                            selectedTool?.noiseDb?.takeIf { it > 0.0 }?.let { "%.1f".format(it) } ?: "-"
+                        // Tool info only (bottom section)
                         val max350Text =
                             selectedTool?.maxMinutesTo350?.takeIf { it > 0 }?.toString() ?: "-"
+                        val noiseText =
+                            selectedTool?.noiseDb?.takeIf { it > 0.0 }?.let { "%.1f".format(it) } ?: "-"
+                        val vibText =
+                            vib?.let { "%.2f".format(it) } ?: "-"
 
-                        Text("Max Usage Time: $max350Text")
-                        Text("Noise: $noiseText dB")
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.White.copy(alpha = 0.88f)
+                            )
+                        ) {
+                            Column(
+                                Modifier.padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                Text(
+                                    "Tool info",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text("Vibration: $vibText m/s²")
+                                Text("Max usage to 350: $max350Text min")
+                                Text("Noise: $noiseText dB")
+                            }
+                        }
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -244,20 +258,29 @@ fun MainScreen(nav: NavController) {
                                     vm.addExposure(tool.id, minutes)
                                 },
                                 enabled = selectedTool != null && minutes > 0,
-                                modifier = Modifier.weight(1f)
-                            ) { Text("Calculate") }
+                                modifier = Modifier.weight(1f),
+                                contentPadding = PaddingValues(vertical = 12.dp)
+                            ) {
+                                Text("Calculate", maxLines = 1)
+                            }
 
                             OutlinedButton(
                                 onClick = { editingTool = selectedTool },
                                 enabled = selectedTool != null,
-                                modifier = Modifier.weight(1f)
-                            ) { Text("Edit") }
+                                modifier = Modifier.weight(1f),
+                                contentPadding = PaddingValues(vertical = 12.dp)
+                            ) {
+                                Text("Edit", maxLines = 1)
+                            }
 
                             OutlinedButton(
                                 onClick = { deletingTool = selectedTool },
                                 enabled = selectedTool != null,
-                                modifier = Modifier.weight(1f)
-                            ) { Text("Delete") }
+                                modifier = Modifier.weight(1f),
+                                contentPadding = PaddingValues(vertical = 12.dp)
+                            ) {
+                                Text("Delete", maxLines = 1)
+                            }
                         }
                     }
                 }
@@ -265,10 +288,7 @@ fun MainScreen(nav: NavController) {
         }
     }
 
-    // --------------------
-    // Dialogs (IMPORTANT!)
-    // --------------------
-
+    // Add tool dialog
     if (showAddDialog) {
         AddOrEditToolDialog(
             title = "Add tool",
@@ -285,6 +305,7 @@ fun MainScreen(nav: NavController) {
         )
     }
 
+    // Edit tool dialog
     val edit = editingTool
     if (edit != null) {
         AddOrEditToolDialog(
@@ -304,6 +325,7 @@ fun MainScreen(nav: NavController) {
         )
     }
 
+    // Delete confirm
     val del = deletingTool
     if (del != null) {
         AlertDialog(
@@ -397,7 +419,7 @@ private fun AddOrEditToolDialog(
                 OutlinedTextField(
                     value = max350,
                     onValueChange = { max350 = it.filter(Char::isDigit); error = null },
-                    label = { Text("Max Usage Time") },
+                    label = { Text("Max minutes to 350") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()

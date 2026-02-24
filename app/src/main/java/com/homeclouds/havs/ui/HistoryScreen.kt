@@ -40,84 +40,113 @@ fun HistoryScreen(nav: NavController) {
     val todayPointsTotal = remember(todayHistory) { todayHistory.sumOf { it.points } }
     var showClearDialog by remember { mutableStateOf(false) }
 
-    Scaffold { padding ->
-        Column(
-            modifier = Modifier.padding(padding).padding(16.dp).fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+    CloudBackground {
+        Scaffold(containerColor = Color.Transparent) { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    "History (Today)",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f)
-                )
+                // Header row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "History (Today)",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White,                  // ✅ readable on blue background
+                        modifier = Modifier.weight(1f)
+                    )
 
-                TextButton(onClick = { nav.popBackStack() }) {
-                    Text("Back")
+                    TextButton(onClick = { nav.popBackStack() }) {
+                        Text("Back", color = Color.White)     // ✅ readable
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = { showClearDialog = true },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Black,
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Text("Clear")
+                    }
                 }
 
-                Spacer(modifier = Modifier.width(8.dp))
-
-                Button(
-                    onClick = { showClearDialog = true },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Black,
-                        contentColor = Color.White
+                // Total card (optional — keep or remove)
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White.copy(alpha = 0.94f)
                     )
                 ) {
-                    Text("Clear")
+                    Column(
+                        Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            "Today total points: ${"%.1f".format(todayPointsTotal)}",
+                            color = bandColor(todayPointsTotal)
+                        )
+                        Text(bandLabel(todayPointsTotal), color = bandColor(todayPointsTotal))
+                    }
                 }
-            }
 
-            Card {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("Today total points: ${"%.1f".format(todayPointsTotal)}", color = bandColor(todayPointsTotal))
-                    Text(bandLabel(todayPointsTotal), color = bandColor(todayPointsTotal))
-                }
-            }
+                if (todayHistory.isEmpty()) {
+                    Text("No entries today.", color = Color.White)
+                } else {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(todayHistory, key = { it.id }) { h ->
+                            val c = bandColor(h.points)
 
-            if (todayHistory.isEmpty()) {
-                Text("No entries today.")
-            } else {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxSize()) {
-                    items(todayHistory, key = { it.id }) { h ->
-                        val c = bandColor(h.points)
-                        Card {
-                            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Text("${h.maker} • ${h.model}", style = MaterialTheme.typography.titleMedium)
-                                Text("Minutes: ${h.minutes}")
-                                Text("Points: ${"%.1f".format(h.points)}", color = c)
-                                Text(bandLabel(h.points), color = c)
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color.White.copy(alpha = 0.94f)
+                                )
+                            ) {
+                                Column(
+                                    Modifier.padding(12.dp),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Text("${h.maker} • ${h.model}", style = MaterialTheme.typography.titleMedium)
+                                    Text("Minutes: ${h.minutes}")
+                                    Text("Points: ${"%.1f".format(h.points)}", color = c)
+                                    Text(bandLabel(h.points), color = c)
+                                }
                             }
                         }
                     }
                 }
             }
-        }
-        if (showClearDialog) {
-            AlertDialog(
-                onDismissRequest = { showClearDialog = false },
-                title = { Text("Clear today history?") },
-                text = { Text("This will remove all today's calculations.") },
-                confirmButton = {
-                    TextButton(onClick = {
-                        vm.clearTodayHistory()
-                        showClearDialog = false
-                    }) {
-                        Text("Clear")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showClearDialog = false }) {
-                        Text("Cancel")
-                    }
-                }
-            )
-        }
 
+            if (showClearDialog) {
+                AlertDialog(
+                    onDismissRequest = { showClearDialog = false },
+                    title = { Text("Clear today history?") },
+                    text = { Text("This will remove all today's calculations.") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            vm.clearTodayHistory()
+                            showClearDialog = false
+                        }) {
+                            Text("Clear")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showClearDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
+        }
     }
 }
 

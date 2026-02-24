@@ -1,0 +1,282 @@
+[
+    {
+        "id": "4cf327d4-2eae-4582-97ec-64c2f87c2931",
+        "maker": "Makita",
+        "model": "Impact Driver DTD172",
+        "vibrationMs2": 13.5,
+        "createdAtEpochMillis": 1771846628761,
+        "maxMinutesTo350": 66,
+        "noiseDb": 106.0,
+        "updatedAtEpochMillis": 1771869591590
+    },
+    {
+        "id": "ebbadc5d-eea0-4e1c-93b8-18601859342f",
+        "maker": "Makita",
+        "model": "Mixing Drill UTT400",
+        "vibrationMs2": 0.5,
+        "createdAtEpochMillis": 1771861670515,
+        "maxMinutesTo350": 480,
+        "noiseDb": 97.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "5ad16288-cfb0-4627-a1bb-fc15c712b3b5",
+        "maker": "Makita",
+        "model": "Impact Wrench DTW1001",
+        "vibrationMs2": 15.5,
+        "createdAtEpochMillis": 1771861609695,
+        "maxMinutesTo350": 50,
+        "noiseDb": 109.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "3b086add-879b-4d5f-ab3f-f45f433c6a95",
+        "maker": "Makita",
+        "model": "Angle Impact Driver DTL061",
+        "vibrationMs2": 17.5,
+        "createdAtEpochMillis": 1771861564803,
+        "maxMinutesTo350": 40,
+        "noiseDb": 102.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "56ecdf0d-0bea-4bcb-9ec3-05ecaf010f47",
+        "maker": "Makita",
+        "model": "Impact Driver DTD153",
+        "vibrationMs2": 13.0,
+        "createdAtEpochMillis": 1771861507987,
+        "maxMinutesTo350": 72,
+        "noiseDb": 107.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "b022ea53-2cf2-4263-bec1-1991ac1cf1b1",
+        "maker": "Makita",
+        "model": "Impact Driver DTD152",
+        "vibrationMs2": 10.5,
+        "createdAtEpochMillis": 1771861457161,
+        "maxMinutesTo350": 109,
+        "noiseDb": 104.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "7cad5301-626d-42c5-9b43-b96f3237c154",
+        "maker": "Makita",
+        "model": "Jig Saw DJV180",
+        "vibrationMs2": 7.0,
+        "createdAtEpochMillis": 1771861396929,
+        "maxMinutesTo350": 245,
+        "noiseDb": 95.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "81878681-0562-4db5-a17c-70aafdf60a30",
+        "maker": "Makita",
+        "model": "Caulking Gun CG100D",
+        "vibrationMs2": 2.5,
+        "createdAtEpochMillis": 1771861349038,
+        "maxMinutesTo350": 480,
+        "noiseDb": 71.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "3fdb66c6-dbb8-44c4-a1f9-9f5b71b80fd6",
+        "maker": "Makita",
+        "model": "Hammed Drill BHR202",
+        "vibrationMs2": 14.5,
+        "createdAtEpochMillis": 1771861306213,
+        "maxMinutesTo350": 58,
+        "noiseDb": 98.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "4cb6efee-abbc-4aa2-9481-0e319563c6e9",
+        "maker": "Makita",
+        "model": "Jig Saw 4350FCT",
+        "vibrationMs2": 7.5,
+        "createdAtEpochMillis": 1771861240937,
+        "maxMinutesTo350": 213,
+        "noiseDb": 95.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "6c06f800-05d0-4e3d-ba1a-272a4eb669fb",
+        "maker": "Makita",
+        "model": "Hammer Drill DHR242",
+        "vibrationMs2": 15.0,
+        "createdAtEpochMillis": 1771861155564,
+        "maxMinutesTo350": 54,
+        "noiseDb": 101.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "e57c8b2f-0931-4ca9-a501-732c446be1de",
+        "maker": "Euroboor",
+        "model": "Mag Drill ECO 30",
+        "vibrationMs2": 1.2,
+        "createdAtEpochMillis": 1771861092920,
+        "maxMinutesTo350": 480,
+        "noiseDb": 90.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "89bc7c8c-f18a-45d6-815f-f61255afea63",
+        "maker": "Bosch",
+        "model": "Combi Drill GSB 18V-21",
+        "vibrationMs2": 11.0,
+        "createdAtEpochMillis": 1771861006027,
+        "maxMinutesTo350": 100,
+        "noiseDb": 99.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "75775add-802d-4241-894b-f9b2bf51cc0a",
+        "maker": "Bosch",
+        "model": "Hammer Drill GBH 36V EC",
+        "vibrationMs2": 16.0,
+        "createdAtEpochMillis": 1771860938272,
+        "maxMinutesTo350": 47,
+        "noiseDb": 102.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "00e485d0-5c0f-4d59-a1ff-d8c492a35e7d",
+        "maker": "Bosch",
+        "model": "Angle Grinder GWS 13-125",
+        "vibrationMs2": 7.5,
+        "createdAtEpochMillis": 1771860885094,
+        "maxMinutesTo350": 214,
+        "noiseDb": 85.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "34e69f2c-1820-4492-ad88-9bc1517bf82a",
+        "maker": "Hilti",
+        "model": "Hammer Drill TE6-A36",
+        "vibrationMs2": 13.0,
+        "createdAtEpochMillis": 1771860799287,
+        "maxMinutesTo350": 72,
+        "noiseDb": 102.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "dbc99786-b8e1-4927-98ba-413a86ec7955",
+        "maker": "Hilti",
+        "model": "Hammer Drill TE 30",
+        "vibrationMs2": 16.5,
+        "createdAtEpochMillis": 1771860743396,
+        "maxMinutesTo350": 45,
+        "noiseDb": 101.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "d036d540-ec8b-45a8-bc07-e6d777444354",
+        "maker": "Hilti",
+        "model": "Impact Wrench SIW 22T-A",
+        "vibrationMs2": 14.5,
+        "createdAtEpochMillis": 1771860681513,
+        "maxMinutesTo350": 58,
+        "noiseDb": 108.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "17768b31-91b3-4660-9171-3f188e66d71d",
+        "maker": "Hilti",
+        "model": "Impact Driver SID 22-A",
+        "vibrationMs2": 11.0,
+        "createdAtEpochMillis": 1771860579791,
+        "maxMinutesTo350": 100,
+        "noiseDb": 97.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "7334ed5b-f288-4a14-bef5-36fe1cb9c4e4",
+        "maker": "Hilti",
+        "model": "Impact Driver SID 2-A",
+        "vibrationMs2": 16.5,
+        "createdAtEpochMillis": 1771860510003,
+        "maxMinutesTo350": 45,
+        "noiseDb": 103.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "8c7719e9-e9a9-42c0-a14c-11d817b67e2c",
+        "maker": "Hilti",
+        "model": "Screw Gun SD 5000-22",
+        "vibrationMs2": 2.5,
+        "createdAtEpochMillis": 1771860462473,
+        "maxMinutesTo350": 480,
+        "noiseDb": 82.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "fb8ab76e-95c0-4458-ba67-16985afcdabf",
+        "maker": "Hilti",
+        "model": "Hammer Drill TE 6-A36",
+        "vibrationMs2": 13.0,
+        "createdAtEpochMillis": 1771860400882,
+        "maxMinutesTo350": 72,
+        "noiseDb": 102.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "d0291367-2ee2-4690-ba76-fc89d4fd4890",
+        "maker": "Hilti",
+        "model": "Nail Gun DX 5-F8",
+        "vibrationMs2": 2.5,
+        "createdAtEpochMillis": 1771860338637,
+        "maxMinutesTo350": 480,
+        "noiseDb": 101.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "1c75cc88-e4c6-4ab7-b4af-1647b299d2c9",
+        "maker": "Hilti",
+        "model": "Nail Gun DX 460-F8",
+        "vibrationMs2": 2.5,
+        "createdAtEpochMillis": 1771860264077,
+        "maxMinutesTo350": 480,
+        "noiseDb": 102.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "5dd8b48a-26f6-4164-8e86-1c56fbfd516a",
+        "maker": "Hilti",
+        "model": "Hammer Drill TE ^-22",
+        "vibrationMs2": 10.7,
+        "createdAtEpochMillis": 1771860210042,
+        "maxMinutesTo350": 105,
+        "noiseDb": 102.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "8765bac9-3681-4e4e-84e6-8674edb17299",
+        "maker": "Hilti",
+        "model": "Skill Saw SCM 22-A",
+        "vibrationMs2": 1.2,
+        "createdAtEpochMillis": 1771860150133,
+        "maxMinutesTo350": 480,
+        "noiseDb": 104.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "3ed94885-72c9-429a-8537-df290f91b051",
+        "maker": "Paslode",
+        "model": "Staple Gun IM200",
+        "vibrationMs2": 2.5,
+        "createdAtEpochMillis": 1771860091096,
+        "maxMinutesTo350": 480,
+        "noiseDb": 108.0,
+        "updatedAtEpochMillis": 0
+    },
+    {
+        "id": "4df4e7b4-809d-4e24-8597-5975285d6f16",
+        "maker": "Paslode",
+        "model": "Nail Gun IM350+",
+        "vibrationMs2": 2.6,
+        "createdAtEpochMillis": 1771860031196,
+        "maxMinutesTo350": 480,
+        "noiseDb": 102.0,
+        "updatedAtEpochMillis": 0
+    }
+]

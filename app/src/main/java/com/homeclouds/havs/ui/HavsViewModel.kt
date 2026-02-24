@@ -8,10 +8,13 @@ import com.homeclouds.havs.data.HavsState
 import com.homeclouds.havs.data.HavsStore
 import com.homeclouds.havs.data.HistoryDto
 import com.homeclouds.havs.data.ToolDto
+import com.homeclouds.havs.data.ToolsJsonStore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
 
 data class UiTool(
@@ -49,44 +52,43 @@ data class UiState(
 )
 
 class HavsViewModel(
-    private val store: HavsStore
+    private val store: HavsStore,
+    private val toolsStore: ToolsJsonStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(UiState())
     val uiState: StateFlow<UiState> = _uiState
 
-    // Persist "new day reset" once (prevents repeated re-saving)
+    // Persist "new day reset" once
     private var lastSavedDayId: Long = -1L
 
     init {
         viewModelScope.launch {
             store.stateFlow.collectLatest { s ->
 
-                // If the store emitted a "new day reset" state, persist it once.
+                // Persist new-day reset once (store handles day rollover)
                 if (s.dayId != lastSavedDayId) {
                     lastSavedDayId = s.dayId
                     store.saveState(s)
                 }
 
+                // Load tools from JSON file (NOT DataStore)
+                val tools = withContext(Dispatchers.IO) { toolsStore.readTools() }
+
                 _uiState.value = UiState(
                     dayId = s.dayId,
-                    tools = s.tools.map { it.toUi() },
+                    tools = tools
+                        .sortedByDescending { maxOf(it.updatedAtEpochMillis, it.createdAtEpochMillis) }
+                        .map { it.toUi() },
                     entries = s.entries.map { UiEntry(it.toolId, it.minutes) },
-                    history = s.history.map { it.toUi() }
+                    history = s.history.sortedByDescending { it.epochMillis }.map { it.toUi() }
                 )
             }
         }
     }
 
-    fun addTool(
-        maker: String,
-        model: String,
-        vibrationMs2: Double,
-        maxMinutesTo350: Int,
-        noiseDb: Double
-    ) {
+    fun addTool(maker: String, model: String, vibrationMs2: Double, maxMinutesTo350: Int, noiseDb: Double) {
         viewModelScope.launch {
-            val current = _uiState.value
             val now = System.currentTimeMillis()
 
             val newTool = ToolDto(
@@ -100,81 +102,72 @@ class HavsViewModel(
                 updatedAtEpochMillis = now
             )
 
-            store.saveState(
-                current.toState(
-                    tools = current.tools.map { it.toDto() } + newTool
-                )
-            )
+            withContext(Dispatchers.IO) {
+                val current = toolsStore.readTools()
+                toolsStore.writeTools(current + newTool)
+            }
+
+            // Force UI refresh by re-saving store state (history/entries unchanged)
+            store.saveState(currentStoreStateCopy())
         }
     }
 
-    fun updateTool(
-        toolId: String,
-        maker: String,
-        model: String,
-        vibrationMs2: Double,
-        maxMinutesTo350: Int,
-        noiseDb: Double
-    ) {
+    fun updateTool(toolId: String, maker: String, model: String, vibrationMs2: Double, maxMinutesTo350: Int, noiseDb: Double) {
         viewModelScope.launch {
-            val current = _uiState.value
             val now = System.currentTimeMillis()
 
-            val updatedTools = current.tools.map { t ->
-                if (t.id == toolId) {
-                    t.copy(
-                        maker = maker.trim(),
-                        model = model.trim(),
-                        vibrationMs2 = vibrationMs2,
-                        maxMinutesTo350 = maxMinutesTo350.coerceAtLeast(0),
-                        noiseDb = noiseDb.coerceAtLeast(0.0),
-                        updatedAtEpochMillis = now
-                    )
-                } else t
+            withContext(Dispatchers.IO) {
+                val current = toolsStore.readTools()
+                val updated = current.map { t ->
+                    if (t.id == toolId) {
+                        t.copy(
+                            maker = maker.trim(),
+                            model = model.trim(),
+                            vibrationMs2 = vibrationMs2,
+                            maxMinutesTo350 = maxMinutesTo350.coerceAtLeast(0),
+                            noiseDb = noiseDb.coerceAtLeast(0.0),
+                            updatedAtEpochMillis = now
+                        )
+                    } else t
+                }
+                toolsStore.writeTools(updated)
             }
 
-            store.saveState(
-                current.toState(
-                    tools = updatedTools.map { it.toDto() }
-                )
-            )
+            store.saveState(currentStoreStateCopy())
         }
     }
 
     fun removeTool(toolId: String) {
         viewModelScope.launch {
-            val current = _uiState.value
+            withContext(Dispatchers.IO) {
+                val current = toolsStore.readTools()
+                toolsStore.writeTools(current.filterNot { it.id == toolId })
+            }
 
-            val filteredTools = current.tools.filterNot { it.id == toolId }
-            val filteredEntries = current.entries.filterNot { it.toolId == toolId }
-            val filteredHistory = current.history.filterNot { it.toolId == toolId }
-
-            store.saveState(
-                current.toState(
-                    tools = filteredTools.map { it.toDto() },
-                    entries = filteredEntries.map { EntryDto(it.toolId, it.minutes) },
-                    history = filteredHistory.map { it.toDto() }
-                )
+            // Also remove entries/history for this tool (today)
+            val currentUi = _uiState.value
+            val newState = HavsState(
+                dayId = currentUi.dayId,
+                tools = emptyList(), // tools are in JSON now
+                entries = currentUi.entries.filterNot { it.toolId == toolId }.map { EntryDto(it.toolId, it.minutes) },
+                history = currentUi.history.filterNot { it.toolId == toolId }.map { it.toDto() }
             )
+            store.saveState(newState)
         }
     }
 
-    /**
-     * Adds a calculation record to history (persists even after closing the app),
-     * and accumulates today's minutes in entries for that tool.
-     */
     fun addExposure(toolId: String, minutesToAdd: Int) {
         viewModelScope.launch {
             val minutes = minutesToAdd.coerceAtLeast(0)
             if (minutes == 0) return@launch
 
-            val current = _uiState.value
-            val tool = current.tools.firstOrNull { it.id == toolId } ?: return@launch
+            val currentUi = _uiState.value
+            val tool = currentUi.tools.firstOrNull { it.id == toolId } ?: return@launch
 
             val now = System.currentTimeMillis()
             val points = HavsMath.pointsForMinutes(tool.vibrationMs2, minutes)
 
-            val historyAdded = current.history + UiHistory(
+            val historyAdded = currentUi.history + UiHistory(
                 id = UUID.randomUUID().toString(),
                 epochMillis = now,
                 toolId = toolId,
@@ -185,50 +178,50 @@ class HavsViewModel(
                 points = points
             )
 
-            val existingMinutes = current.entries.firstOrNull { it.toolId == toolId }?.minutes ?: 0
-            val newMinutes = existingMinutes + minutes
-
+            val existingMinutes = currentUi.entries.firstOrNull { it.toolId == toolId }?.minutes ?: 0
             val updatedEntries =
-                current.entries.filterNot { it.toolId == toolId } + UiEntry(toolId, newMinutes)
+                currentUi.entries.filterNot { it.toolId == toolId } + UiEntry(toolId, existingMinutes + minutes)
 
-            store.saveState(
-                current.toState(
-                    entries = updatedEntries.map { EntryDto(it.toolId, it.minutes) },
-                    history = historyAdded.map { it.toDto() }
-                )
+            val newState = HavsState(
+                dayId = currentUi.dayId,
+                tools = emptyList(), // tools are in JSON now
+                entries = updatedEntries.map { EntryDto(it.toolId, it.minutes) },
+                history = historyAdded.map { it.toDto() }
             )
+
+            store.saveState(newState)
         }
     }
 
     fun clearTodayHistory() {
         viewModelScope.launch {
-            val current = _uiState.value
-            store.saveState(
-                current.toState(
-                    entries = emptyList(),
-                    history = emptyList()
-                )
+            val currentUi = _uiState.value
+            val newState = HavsState(
+                dayId = currentUi.dayId,
+                tools = emptyList(), // tools are in JSON now
+                entries = emptyList(),
+                history = emptyList()
             )
+            store.saveState(newState)
         }
     }
 
-    // -------------------------
-    // Helpers (reduce repetition)
-    // -------------------------
-
-    private fun UiState.toState(
-        dayId: Long = this.dayId,
-        tools: List<ToolDto> = this.tools.map { it.toDto() },
-        entries: List<EntryDto> = this.entries.map { EntryDto(it.toolId, it.minutes) },
-        history: List<HistoryDto> = this.history.map { it.toDto() }
-    ): HavsState {
-        return HavsState(
-            dayId = dayId,
-            tools = tools,
-            entries = entries,
-            history = history
-        )
+    // Optional: export/import tools JSON (for your UI buttons later)
+    fun exportToolsJson(onReady: (String) -> Unit) {
+        viewModelScope.launch {
+            val raw = withContext(Dispatchers.IO) { toolsStore.exportToolsJson() }
+            onReady(raw)
+        }
     }
+
+    fun importToolsJson(rawJson: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) { toolsStore.importToolsJson(rawJson) }
+            store.saveState(currentStoreStateCopy())
+        }
+    }
+
+    // ---- helpers ----
 
     private fun ToolDto.toUi(): UiTool = UiTool(
         id = id,
@@ -252,17 +245,6 @@ class HavsViewModel(
         points = points
     )
 
-    private fun UiTool.toDto(): ToolDto = ToolDto(
-        id = id,
-        maker = maker,
-        model = model,
-        vibrationMs2 = vibrationMs2,
-        createdAtEpochMillis = createdAtEpochMillis,
-        maxMinutesTo350 = maxMinutesTo350,
-        noiseDb = noiseDb,
-        updatedAtEpochMillis = updatedAtEpochMillis
-    )
-
     private fun UiHistory.toDto(): HistoryDto = HistoryDto(
         id = id,
         epochMillis = epochMillis,
@@ -273,4 +255,14 @@ class HavsViewModel(
         minutes = minutes,
         points = points
     )
+
+    private fun currentStoreStateCopy(): HavsState {
+        val currentUi = _uiState.value
+        return HavsState(
+            dayId = currentUi.dayId,
+            tools = emptyList(), // tools are in JSON now
+            entries = currentUi.entries.map { EntryDto(it.toolId, it.minutes) },
+            history = currentUi.history.map { it.toDto() }
+        )
+    }
 }
