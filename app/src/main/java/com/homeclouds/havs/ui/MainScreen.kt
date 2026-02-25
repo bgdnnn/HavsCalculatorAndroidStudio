@@ -46,7 +46,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.homeclouds.havs.data.HavsMath
 import com.homeclouds.havs.ui.components.DropdownField
-
 @Composable
 fun MainScreen(nav: NavController) {
     val context = LocalContext.current

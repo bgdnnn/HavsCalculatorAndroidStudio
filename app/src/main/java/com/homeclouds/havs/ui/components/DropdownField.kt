@@ -1,15 +1,17 @@
 package com.homeclouds.havs.ui.components
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DropdownField(
     label: String,
@@ -20,7 +22,15 @@ fun DropdownField(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = {
+            if (enabled) {
+                expanded = !expanded
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) {
         OutlinedTextField(
             value = value,
             onValueChange = {},
@@ -28,16 +38,14 @@ fun DropdownField(
             readOnly = true,
             enabled = enabled,
             singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Box(
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
             modifier = Modifier
-                .matchParentSize()
-                .clickable(enabled = enabled) { expanded = true }
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable, enabled)
+                .fillMaxWidth()
         )
 
-        DropdownMenu(
+        ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
@@ -47,7 +55,8 @@ fun DropdownField(
                     onClick = {
                         onSelected(opt)
                         expanded = false
-                    }
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                 )
             }
         }
